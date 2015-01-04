@@ -22,6 +22,7 @@ using System.Threading;
 using EnvDTE80;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using NArrange.Core;
 
 namespace NArrangeVS
 {
@@ -63,7 +64,7 @@ namespace NArrangeVS
                 CommandID menuCommandID = new CommandID(GuidList.guidNArrangeVSCmdSet, (int)PkgCmdIDList.cmdidArrangeFile);
                 MenuCommand menuItem = new MenuCommand(MenuItemCallback, menuCommandID);
                 mcs.AddCommand(menuItem);
-                }
+            }
             // Add events
             documentEvents.Value.DocumentSaved += DocumentEvents_DocumentSaved;
         }
@@ -72,7 +73,7 @@ namespace NArrangeVS
         {
             if (options.Value.ArrangeFileOnSave && fileRegex.Value.IsMatch(document.FullName)) {
                 NArrangeDocument(document);
-                }
+            }
         }
 
         private void MenuItemCallback(object sender, EventArgs e)
@@ -84,29 +85,18 @@ namespace NArrangeVS
         {
             if (document.ReadOnly) {
                 return;
-                }
+            }
+            // Open an undo context.
             dte.Value.UndoContext.Open("NArrangeVS");
-            ProcessStartInfo startInfo =
-                new ProcessStartInfo(
-                    options.Value.NArrangeConsoleLocation,
-                    string.Format("\"{0}\" /c:\"{1}\"", document.FullName, options.Value.NArrangeConfigLocation)
-                    ) {
-                        CreateNoWindow = true,
-                        ErrorDialog = false,
-                        RedirectStandardError = true,
-                        RedirectStandardInput = true,
-                        RedirectStandardOutput = true,
-                        UseShellExecute = false,
-                        WorkingDirectory = document.Path
-                    };
-            Process process = Process.Start(startInfo);
-            while (!process.HasExited) {
-                Thread.Sleep(100);
-                }
+            // Load the configuration and arrange the file.
+            FileArranger fileArranger = new FileArranger(string.IsNullOrWhiteSpace(options.Value.NArrangeConfigLocation) ? null : options.Value.NArrangeConfigLocation, new OutputPaneLogger(this));
+            fileArranger.Arrange(document.FullName, document.FullName);
+            // Reload the document.
             IVsPersistDocData docData = rdt.Value.FindDocument(document.FullName) as IVsPersistDocData;
             if (docData != null) {
                 docData.ReloadDocData((uint)_VSRELOADDOCDATA.RDD_IgnoreNextFileChange);
-                }
+            }
+            // Close the undo context.
             dte.Value.UndoContext.Close();
         }
     }

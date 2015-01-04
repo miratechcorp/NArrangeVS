@@ -25,7 +25,6 @@ namespace NArrangeVS
     [ComVisible(true)]
     public class NArrangeVSOptions : DialogPage
     {
-        private static readonly string DefaultNArrangeFolderPath = @"C:\Program Files (x86)\NArrange 0.2.9";
 
         [Category("Integration")]
         [DisplayName("Arrange File On Save")]
@@ -47,28 +46,19 @@ namespace NArrangeVS
 
         [Category("NArrange Information")]
         [DisplayName("NArrange Config Location")]
-        [Description("The location of the NArrange XML configuration file to be used for arranging the files.")]
+        [Description("The location of the NArrange XML configuration file to be used for arranging the files. Leave blank for the DefaultConfig.xml settings to be used.")]
         public string NArrangeConfigLocation
         {
             get;
             set;
         }
 
-        [Category("NArrange Information")]
-        [DisplayName("NArrange Console Location")]
-        [Description("The location of the narrange-console.exe file.")]
-        public string NArrangeConsoleLocation
-        {
-            get;
-            set;
-        }
 
         public override void LoadSettingsFromStorage()
         {
             ArrangeFileOnSave = true;
-            ArrangeFileRegex = "\\.cs$";
-            NArrangeConsoleLocation = Path.Combine(DefaultNArrangeFolderPath, "narrange-console.exe");
-            NArrangeConfigLocation = Path.Combine(DefaultNArrangeFolderPath, "DefaultConfig.xml");
+            ArrangeFileRegex = "\\.(cs|vb)$";
+            NArrangeConfigLocation = null;
             base.LoadSettingsFromStorage();
         }
     }

@@ -1,9 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="efb6d9c0-f0d9-46a8-af54-4a70e22664b8" Version="1.0" Language="en-US" Publisher="MIRATECH" />
+    <Identity Id="efb6d9c0-f0d9-46a8-af54-4a70e22664b8" Version="1.1" Language="en-US" Publisher="MIRATECH" />
     <DisplayName>NArrangeVS</DisplayName>
     <Description xml:space="preserve">Adds the ability to run NArrange on files in Visual Studio.</Description>
+    <MoreInfo>https://github.com/miratechcorp/NArrangeVS</MoreInfo>
     <License>LICENSE.txt</License>
   </Metadata>
   <Installation InstalledByMsi="false">

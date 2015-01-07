@@ -18,11 +18,11 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
-using System.Threading;
+using EnvDTE;
 using EnvDTE80;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
 using NArrange.Core;
+using NArrangeVS.Events;
 
 namespace NArrangeVS
 {
@@ -34,23 +34,36 @@ namespace NArrangeVS
     [ProvideOptionPage(typeof(NArrangeVSOptions), "NArrangeVS", "General", 0, 0, true, new[] { "NArrange", })]
     public sealed class NArrangeVSPackage : Package
     {
-        private readonly Lazy<EnvDTE.DocumentEvents> documentEvents;
-        private readonly Lazy<DTE2> dte;
-        private readonly Lazy<EnvDTE.Events> events;
-        private readonly Lazy<Regex> fileRegex;
-        private readonly Lazy<NArrangeVSOptions> options;
-        private readonly Lazy<RunningDocumentTable> rdt;
-        private readonly Lazy<Microsoft.VisualStudio.OLE.Interop.IServiceProvider> sp;
+        internal readonly Lazy<DTE2> dte;
+        internal readonly Lazy<Regex> fileRegex;
+        internal readonly Lazy<NArrangeVSOptions> options;
+        internal readonly Lazy<RunningDocumentTable> rdt;
+        internal readonly Lazy<Microsoft.VisualStudio.OLE.Interop.IServiceProvider> sp;
 
         public NArrangeVSPackage()
         {
             options = new Lazy<NArrangeVSOptions>(() => GetDialogPage(typeof(NArrangeVSOptions)) as NArrangeVSOptions, true);
             dte = new Lazy<DTE2>(() => ServiceProvider.GlobalProvider.GetService(typeof(EnvDTE.DTE)) as DTE2);
-            events = new Lazy<EnvDTE.Events>(() => dte.Value.Events);
-            documentEvents = new Lazy<EnvDTE.DocumentEvents>(() => events.Value.DocumentEvents);
             sp = new Lazy<Microsoft.VisualStudio.OLE.Interop.IServiceProvider>(() => Package.GetGlobalService(typeof(Microsoft.VisualStudio.OLE.Interop.IServiceProvider)) as Microsoft.VisualStudio.OLE.Interop.IServiceProvider);
             rdt = new Lazy<RunningDocumentTable>(() => new RunningDocumentTable(new ServiceProvider(sp.Value)));
             fileRegex = new Lazy<Regex>(() => new Regex(options.Value.ArrangeFileRegex));
+        }
+
+        internal void NArrangeDocument(EnvDTE.Document document)
+        {
+            // Get the text document.
+            TextDocument textDocument = document.Object("TextDocument") as TextDocument;
+            // Get the full document text.
+            EditPoint editStart = textDocument.StartPoint.CreateEditPoint();
+            string inputFileText = editStart.GetText(textDocument.EndPoint);
+            // Arrange the text.
+            string outputFileText;
+            StringArranger stringArranger = new StringArranger(string.IsNullOrWhiteSpace(options.Value.NArrangeConfigLocation) ? null : options.Value.NArrangeConfigLocation, new OutputPaneLogger(this));
+            bool success = stringArranger.Arrange(document.FullName, inputFileText, out outputFileText);
+            if (success) {
+                // Overwrite the file.
+                editStart.ReplaceText(textDocument.EndPoint, outputFileText, -1);
+            }
         }
 
         protected override void Initialize()
@@ -66,38 +79,12 @@ namespace NArrangeVS
                 mcs.AddCommand(menuItem);
             }
             // Add events
-            documentEvents.Value.DocumentSaved += DocumentEvents_DocumentSaved;
-        }
-
-        private void DocumentEvents_DocumentSaved(EnvDTE.Document document)
-        {
-            if (options.Value.ArrangeFileOnSave && fileRegex.Value.IsMatch(document.FullName)) {
-                NArrangeDocument(document);
-            }
+            rdt.Value.Advise(new RunningDocTableEvents(this));
         }
 
         private void MenuItemCallback(object sender, EventArgs e)
         {
             NArrangeDocument(dte.Value.ActiveDocument);
-        }
-
-        private void NArrangeDocument(EnvDTE.Document document)
-        {
-            if (document.ReadOnly) {
-                return;
-            }
-            // Open an undo context.
-            dte.Value.UndoContext.Open("NArrangeVS");
-            // Load the configuration and arrange the file.
-            FileArranger fileArranger = new FileArranger(string.IsNullOrWhiteSpace(options.Value.NArrangeConfigLocation) ? null : options.Value.NArrangeConfigLocation, new OutputPaneLogger(this));
-            fileArranger.Arrange(document.FullName, document.FullName);
-            // Reload the document.
-            IVsPersistDocData docData = rdt.Value.FindDocument(document.FullName) as IVsPersistDocData;
-            if (docData != null) {
-                docData.ReloadDocData((uint)_VSRELOADDOCDATA.RDD_IgnoreNextFileChange);
-            }
-            // Close the undo context.
-            dte.Value.UndoContext.Close();
         }
     }
 }

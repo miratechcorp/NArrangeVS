@@ -25,6 +25,32 @@ namespace NArrangeVS
     [ComVisible(true)]
     public class NArrangeVSOptions : DialogPage
     {
+        [Category("Arrange File Options")]
+        [DisplayName("Format Document")]
+        [Description("When enabled, formats the document after arranging the file.")]
+        public bool ArrangeFileFormat
+        {
+            get;
+            set;
+        }
+
+        [Category("Arrange File Options")]
+        [DisplayName("Keep Markers")]
+        [Description("When enabled, retains existing markers (for breakpoints, named shortcuts, and so forth) in their current locations after arranging the file.")]
+        public bool ArrangeFileKeepMarkers
+        {
+            get;
+            set;
+        }
+
+        [Category("Arrange File Options")]
+        [DisplayName("Normalize Newlines")]
+        [Description("When enabled, normalizes newlines after arranging the file.")]
+        public bool ArrangeFileNormalizeNewlines
+        {
+            get;
+            set;
+        }
 
         [Category("Integration")]
         [DisplayName("Arrange File On Save")]
@@ -44,6 +70,15 @@ namespace NArrangeVS
             set;
         }
 
+        [Category("Arrange File Options")]
+        [DisplayName("Tabs/Spaces")]
+        [Description("When enabled, fixes mixed tabs and spaces after arranging the file.")]
+        public bool ArrangeFileTabsSpaces
+        {
+            get;
+            set;
+        }
+
         [Category("NArrange Information")]
         [DisplayName("NArrange Config Location")]
         [Description("The location of the NArrange XML configuration file to be used for arranging the files. Leave blank for the DefaultConfig.xml settings to be used.")]
@@ -53,11 +88,14 @@ namespace NArrangeVS
             set;
         }
 
-
         public override void LoadSettingsFromStorage()
         {
+            ArrangeFileFormat = true;
+            ArrangeFileKeepMarkers = true;
+            ArrangeFileNormalizeNewlines = true;
             ArrangeFileOnSave = true;
             ArrangeFileRegex = "\\.(cs|vb)$";
+            ArrangeFileTabsSpaces = true;
             NArrangeConfigLocation = null;
             base.LoadSettingsFromStorage();
         }

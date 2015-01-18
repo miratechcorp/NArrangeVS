@@ -62,7 +62,13 @@ namespace NArrangeVS
             bool success = stringArranger.Arrange(document.FullName, inputFileText, out outputFileText);
             if (success) {
                 // Overwrite the file.
-                editStart.ReplaceText(textDocument.EndPoint, outputFileText, -1);
+                ArrangeFileOptions arrangeFileOptions =
+                    (options.Value.ArrangeFileFormat ? ArrangeFileOptions.Format : 0) |
+                    (options.Value.ArrangeFileKeepMarkers ? ArrangeFileOptions.KeepMarkers : 0) |
+                    (options.Value.ArrangeFileNormalizeNewlines ? ArrangeFileOptions.NormalizeNewlines : 0) |
+                    (options.Value.ArrangeFileTabsSpaces ? ArrangeFileOptions.TabsSpaces : 0)
+                    ;
+                editStart.ReplaceText(textDocument.EndPoint, outputFileText, (int)arrangeFileOptions);
             }
         }
 

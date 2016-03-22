@@ -56,17 +56,17 @@
     <Reference Include="Microsoft.VisualStudio.Shell.Immutable.10.0" />
     <Reference Include="Microsoft.VisualStudio.Shell.Immutable.11.0" />
     <Reference Include="Microsoft.VisualStudio.Shell.Immutable.12.0" />
-    <Reference Include="NArrange.Core, Version=0.3.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\NArrange.0.3.4\lib\NArrange.Core.dll</HintPath>
+    <Reference Include="NArrange.Core, Version=0.3.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NArrange.0.3.5\lib\NArrange.Core.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="NArrange.CSharp, Version=0.3.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\NArrange.0.3.4\lib\NArrange.CSharp.dll</HintPath>
+    <Reference Include="NArrange.CSharp, Version=0.3.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NArrange.0.3.5\lib\NArrange.CSharp.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="NArrange.VisualBasic, Version=0.3.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\NArrange.0.3.4\lib\NArrange.VisualBasic.dll</HintPath>
+    <Reference Include="NArrange.VisualBasic, Version=0.3.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NArrange.0.3.5\lib\NArrange.VisualBasic.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
